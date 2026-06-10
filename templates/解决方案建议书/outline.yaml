@@ -1,0 +1,71 @@
+# templates/解决方案建议书/outline.yaml
+# solution-drafter L2 文档类型层 / 解决方案建议书 schema v0
+# 与 requirement-proposal 共用 intake_schema (Surface 1 F1 决策)
+
+doc_type: proposal-document
+doc_type_zh: 解决方案建议书
+version: v0
+
+intake_schema:
+  required:
+    - project_name        # 项目名
+    - client_name         # 客户名
+    - client_industry     # 客户所属行业
+    - project_period      # 项目周期
+  optional:
+    - budget_range        # 预算范围
+    - core_pain_points    # 核心痛点 list[str]
+    - existing_systems    # 现有系统 list[str]
+    - reference_cases     # 参考案例 list[str]
+
+outline:
+  - id: "01"
+    section: company-strength
+    title: 公司实力
+    prompt_path: prompts/sections/解决方案建议书/01-company-strength.md
+    intake_fields: []           # 无 M2 字段 / 依赖 L3 领域插件层填充 own_company_*
+    asset_needs: [公司资质, 公司简介, 团队规模, 业绩]    # S2 素材链 / 手段无关列类型
+  - id: "02"
+    section: project-understanding
+    title: 项目理解
+    prompt_path: prompts/sections/解决方案建议书/02-project-understanding.md
+    intake_fields: [project_name, client_name, client_industry, core_pain_points]
+    asset_needs: [客户业务背景, 行业政策]    # S2 素材链 / 手段无关列类型
+  - id: "03"
+    section: solution-architecture
+    title: 方案架构
+    prompt_path: prompts/sections/解决方案建议书/03-solution-architecture.md
+    intake_fields: [existing_systems, reference_cases, core_pain_points]
+    asset_needs: [产品能力, 技术架构参考, 集成案例]    # S2 素材链 / 手段无关列类型
+  - id: "04"
+    section: key-highlights
+    title: 方案亮点
+    prompt_path: prompts/sections/解决方案建议书/04-key-highlights.md
+    intake_fields: [core_pain_points, existing_systems, reference_cases]
+    asset_needs: [差异化优势, 产品亮点]    # S2 素材链 / 手段无关列类型
+  - id: "05"
+    section: similar-cases
+    title: 类似案例
+    prompt_path: prompts/sections/解决方案建议书/05-similar-cases.md
+    intake_fields: [reference_cases]
+    asset_needs: [类似项目案例]    # S2 素材链 / 手段无关列类型
+  - id: "06"
+    section: quote-summary
+    title: 报价概要
+    prompt_path: prompts/sections/解决方案建议书/06-quote-summary.md
+    intake_fields: [budget_range, project_period]
+    asset_needs: [报价参考]    # S2 素材链 / 手段无关列类型
+
+generation:
+  system_prompt: prompts/system.md
+  stages:
+    s1_extract: prompts/stages/s1-extract.md
+    s2_acquire: prompts/stages/s2-acquire.md
+    s4_generate: prompts/stages/s4-generate.md
+    s5_review: prompts/stages/s5-review.md
+  domain_plugin: prompts/domain/_空领域/glossary.md
+
+output:
+  template_docx: templates/解决方案建议书/template.docx
+  filename_pattern: "{project_name}_解决方案建议书.docx"
+  font_policy: 宋体

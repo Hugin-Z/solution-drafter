@@ -1,0 +1,178 @@
+# -*- coding: utf-8 -*-
+"""
+demo-解决方案建议书 · 端到端 demo (proposal-document doc_type / 默认空领域)
+intake.json → outline_filled.json → draft.md → final.docx + check_font_safety
+
+与 demo-需求方案 仅 doc_type (L2 配置) 不同，run.py 主流程一致 —— 体现"加新文档类型不动框架"。
+默认空领域下 §01 公司实力输出整段【待补充】；对照 demo-槐序数据领域（接领域插件后 own_* 填充）。
+stub 是 demo fixture / 真实使用时 agent 自读 section prompt 生成。
+"""
+
+from __future__ import annotations
+
+import json
+import shutil
+import sys
+from pathlib import Path
+
+
+# ── 路径 (DEMO_DIR / REPO_ROOT / scripts / 模块解析) ──────────────────
+DEMO_DIR = Path(__file__).resolve().parent
+REPO_ROOT = DEMO_DIR.parent.parent
+SCRIPTS_DIR = REPO_ROOT / "scripts"
+sys.path.insert(0, str(SCRIPTS_DIR))
+sys.path.insert(0, str(DEMO_DIR))   # M3 Surface 2 E: 让 demo-local stub 可 import
+
+# ── 依赖 (前置 verify: PyYAML / docx_builder / append_chapter / check_font_safety / llm_stub_local) ──
+try:
+    import yaml
+except ImportError:
+    print("[错误] 缺少 PyYAML 依赖, 请 python -m pip install PyYAML", file=sys.stderr)
+    sys.exit(1)
+
+try:
+    from docx import Document
+except ImportError:
+    print("[错误] 缺少 python-docx 依赖, 请 python -m pip install python-docx", file=sys.stderr)
+    sys.exit(1)
+
+import sys as _sys
+_sys.path.insert(0, str(REPO_ROOT / 'examples'))
+from _demo_assets import build_demo_assets
+from docx_builder import create_section_doc, clean_docx_whitespace
+from append_chapter import append_markdown
+from check_font_safety import check_font_safety
+from llm_stub_local import generate_section_content   # M3 Surface 2 E: demo-local stub
+
+
+def safe_filename(value: object, default: str = "draft") -> str:
+    """清洗 Windows 文件名非法字符，避免项目名直接作为 docx 文件名时报错."""
+    text = str(value or default)
+    cleaned = "".join("_" if ch in '<>:"/\\|?*' or ord(ch) < 32 else ch for ch in text)
+    return cleaned.strip(" .") or default
+
+
+def main() -> int:
+    print("=" * 60)
+    print("solution-drafter · demo-解决方案建议书 · M3 端到端")
+    print("=" * 60)
+
+    # ── 路径 ────────────────────────────────────────────────
+    outline_yaml = REPO_ROOT / "templates" / "解决方案建议书" / "outline.yaml"
+    template_docx = REPO_ROOT / "templates" / "解决方案建议书" / "template.docx"
+    intake_json = DEMO_DIR / "input" / "intake.json"
+
+    output_dir = DEMO_DIR / "output"
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    outline_filled_json = output_dir / "outline_filled.json"
+    draft_md = output_dir / "draft.md"
+
+    # ── 1. 加载 outline.yaml ─────────────────────────────────
+    print(f"\n[1/8] 加载 outline.yaml: {outline_yaml.relative_to(REPO_ROOT)}")
+    outline_cfg = yaml.safe_load(outline_yaml.read_text(encoding="utf-8"))
+    print(f"  doc_type: {outline_cfg['doc_type']}")
+    print(f"  sections: {len(outline_cfg['outline'])}")
+
+    # ── 2. 加载 intake.json ─────────────────────────────────
+    print(f"\n[2/8] 加载 intake.json: {intake_json.relative_to(REPO_ROOT)}")
+    intake_data = json.loads(intake_json.read_text(encoding="utf-8"))
+    print(f"  字段数: {len(intake_data)}")
+    print(f"  project_name: {intake_data.get('project_name', '<missing>')}")
+    print(f"  client_name: {intake_data.get('client_name', '<missing>')}")
+
+    # ── 3. 加载 system + stages + domain prompts ─────────────
+    print(f"\n[3/8] 加载 system + s4-generate + domain plugin")
+    system_prompt = (REPO_ROOT / outline_cfg["generation"]["system_prompt"]).read_text(encoding="utf-8")
+    stage_prompt = (REPO_ROOT / outline_cfg["generation"]["stages"]["s4_generate"]).read_text(encoding="utf-8")
+    domain_plugin = (REPO_ROOT / outline_cfg["generation"]["domain_plugin"]).read_text(encoding="utf-8")
+    print(f"  system_prompt: {len(system_prompt)} chars")
+    print(f"  s4_generate: {len(stage_prompt)} chars")
+    print(f"  domain_plugin: {len(domain_plugin)} chars")
+
+    # ── 4. 模板填充 / outline_filled.json (S3) ───────────────
+    print(f"\n[4/8] 模板填充 → outline_filled.json")
+    outline_filled = {
+        "doc_type": outline_cfg["doc_type"],
+        "doc_type_zh": outline_cfg["doc_type_zh"],
+        "intake": intake_data,
+        "sections": [
+            {
+                "id": s["id"],
+                "title": s["title"],
+                "intake_fields": s["intake_fields"],
+                "filled_values": {f: intake_data.get(f) for f in s["intake_fields"]},
+            }
+            for s in outline_cfg["outline"]
+        ],
+    }
+    outline_filled_json.write_text(
+        json.dumps(outline_filled, ensure_ascii=False, indent=2),
+        encoding="utf-8",
+    )
+    print(f"  落盘: {outline_filled_json.relative_to(REPO_ROOT)} ({outline_filled_json.stat().st_size} bytes)")
+    # M7-j S2 产物:fixture assets.json (示例素材 / 真实 agent 用其手段获取)
+    _assets = build_demo_assets(outline_cfg)
+    (output_dir / 'assets.json').write_text(json.dumps(_assets, ensure_ascii=False, indent=2), encoding='utf-8')
+
+    # ── 5. 调 llm_stub 逐 section 生成 markdown (S4) ─────────
+    # ── 5-7. 逐 section 生成 → 逐段 append+save 落盘 (M7-l 缺口1+4: 不攒齐再写 / 中途断保住已写) ─
+    body_font = outline_cfg["output"].get("font_policy", "宋体")  # M7-g C-full font_policy 驱动
+    doc_title = f"# {intake_data.get('project_name', '【待补充】')} {outline_cfg['doc_type_zh']}\n"
+    safe_name = safe_filename(intake_data.get("project_name"))
+    final_docx = output_dir / f"{safe_name}_{outline_cfg['doc_type_zh']}.docx"
+    print(f"\n[5/8] 逐 section 生成 + 逐段落盘 (body_font={body_font} / append+save 每段)")
+
+    create_section_doc(final_docx, body_font=body_font)
+    document = Document(str(final_docx))
+    stats = append_markdown(document, doc_title, body_font=body_font)  # M7-l: 一级标题先落盘
+    document.save(str(final_docx))
+    draft_md.write_text(doc_title + "\n", encoding="utf-8")
+
+    for sec in outline_cfg["outline"]:
+        section_prompt_path = REPO_ROOT / sec["prompt_path"]
+        section_prompt = section_prompt_path.read_text(encoding="utf-8")
+        md = generate_section_content(
+            section_id=sec["id"],
+            section_title=sec["title"],
+            section_prompt=section_prompt,
+            intake_data=intake_data,
+            intake_fields=sec["intake_fields"],
+            system_prompt=system_prompt,
+            stage_prompt=stage_prompt,
+            domain_plugin=domain_plugin,
+            section_assets=_assets["sections"][sec["id"]],   # M7-k 高-2: S2 素材消费
+        )
+        s = append_markdown(document, md, body_font=body_font)   # M7-l 缺口1+4: 逐 section 追加
+        document.save(str(final_docx))                            # 每 section 落盘 (中途断保住已写)
+        with draft_md.open("a", encoding="utf-8") as f:
+            f.write("\n" + md + "\n")                             # draft.md 同步逐段追加
+        for k in stats:
+            stats[k] += s.get(k, 0)
+        print(f"  [{sec['id']}] {sec['title']}: {len(md)} chars / 已 append+save 落盘")
+
+    # ── 6-7. 末尾统一清空格 + final save ─────────────────────
+    cleaned = clean_docx_whitespace(document)
+    document.save(str(final_docx))
+    draft_text = draft_md.read_text(encoding="utf-8")
+    print(f"\n[6/8] draft.md 逐段落盘 ({draft_md.stat().st_size} bytes / 二级标题数: {draft_text.count(chr(10) + '## ')})")
+    print(f"[7/8] final.docx: {final_docx.relative_to(REPO_ROOT)} ({final_docx.stat().st_size} bytes) / stats: {stats} / cleaned: {cleaned} run")
+
+    # ── 8. check_font_safety on final.docx ───────────────────
+    print(f"\n[8/8] check_font_safety on final.docx")
+    issues = check_font_safety(final_docx, declared_font=body_font)
+    print(f"  issues: {issues}")
+
+    # ── 终态 ────────────────────────────────────────────────
+    print("\n" + "=" * 60)
+    if issues:
+        print(f"DEMO FAIL / check_font_safety 报告 {len(issues)} 处问题")
+        return 1
+    print("DEMO PASS / 端到端 6 section 生成 + docx + font 全合规")
+    print(f"  final.docx: {final_docx}")
+    print("=" * 60)
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

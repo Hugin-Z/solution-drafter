@@ -1,0 +1,70 @@
+# templates/需求方案/outline.yaml
+# solution-drafter L2 文档类型层 / 需求方案 schema v0
+
+doc_type: requirement-proposal
+doc_type_zh: 需求方案
+version: v0
+
+intake_schema:
+  required:
+    - project_name        # 项目名
+    - client_name         # 客户名
+    - client_industry     # 客户所属行业 / 政府 / 央国企 / toG 子领域
+    - project_period      # 项目周期
+  optional:
+    - budget_range        # 预算范围
+    - core_pain_points    # 核心痛点 list[str]
+    - existing_systems    # 现有系统 list[str]
+    - reference_cases     # 参考案例 list[str]
+
+outline:
+  - id: "01"
+    section: project-background
+    title: 项目背景
+    prompt_path: prompts/sections/需求方案/01-project-background.md
+    intake_fields: [project_name, client_name, client_industry]
+    asset_needs: [行业政策背景, 客户单位概况]    # S2 素材链 / 手段无关列类型
+  - id: "02"
+    section: client-pain-points
+    title: 客户痛点
+    prompt_path: prompts/sections/需求方案/02-client-pain-points.md
+    intake_fields: [core_pain_points, existing_systems]
+    asset_needs: [客户业务现状, 同类痛点案例]    # S2 素材链 / 手段无关列类型
+  - id: "03"
+    section: functional-requirements
+    title: 功能需求
+    prompt_path: prompts/sections/需求方案/03-functional-requirements.md
+    intake_fields: [core_pain_points, existing_systems]
+    asset_needs: [同类系统功能清单]    # S2 素材链 / 手段无关列类型
+  - id: "04"
+    section: tech-architecture-overview
+    title: 技术架构概述
+    prompt_path: prompts/sections/需求方案/04-tech-architecture-overview.md
+    intake_fields: [existing_systems, reference_cases]
+    asset_needs: [技术架构参考, 产品能力]    # S2 素材链 / 手段无关列类型
+  - id: "05"
+    section: nonfunctional-requirements
+    title: 非功能需求
+    prompt_path: prompts/sections/需求方案/05-nonfunctional-requirements.md
+    intake_fields: [project_period, budget_range]
+    asset_needs: [性能与合规指标参考]    # S2 素材链 / 手段无关列类型
+  - id: "06"
+    section: implementation-plan
+    title: 实施计划
+    prompt_path: prompts/sections/需求方案/06-implementation-plan.md
+    intake_fields: [project_period, budget_range]
+    asset_needs: [实施方法论, 类似项目周期]    # S2 素材链 / 手段无关列类型
+
+generation:
+  system_prompt: prompts/system.md
+  stages:
+    s1_extract: prompts/stages/s1-extract.md
+    s2_acquire: prompts/stages/s2-acquire.md
+    s4_generate: prompts/stages/s4-generate.md
+    s5_review: prompts/stages/s5-review.md
+  domain_plugin: prompts/domain/_空领域/glossary.md
+
+output:
+  template_docx: templates/需求方案/template.docx
+  filename_pattern: "{project_name}_需求方案.docx"
+  font_policy: 宋体

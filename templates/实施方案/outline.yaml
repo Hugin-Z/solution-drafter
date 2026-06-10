@@ -1,0 +1,71 @@
+# templates/实施方案/outline.yaml
+# solution-drafter L2 文档类型层 / 实施方案 schema v0 (M7 阶段 1)
+# 复用 doc_type-agnostic intake_schema (L13) / 与其他 doc_type 同一份 intake 可喂
+
+doc_type: implementation-plan
+doc_type_zh: 实施方案
+version: v0
+
+intake_schema:
+  required:
+    - project_name        # 项目名
+    - client_name         # 客户名
+    - client_industry     # 客户所属行业
+    - project_period      # 项目周期
+  optional:
+    - budget_range        # 预算范围
+    - core_pain_points    # 核心痛点 list[str]
+    - existing_systems    # 现有系统 list[str]
+    - reference_cases     # 参考案例 list[str]
+
+outline:
+  - id: "01"
+    section: project-overview
+    title: 项目概述
+    prompt_path: prompts/sections/实施方案/01-project-overview.md
+    intake_fields: [project_name, client_name, client_industry, core_pain_points]
+    asset_needs: [客户单位概况, 项目背景]    # S2 素材链 / 手段无关列类型
+  - id: "02"
+    section: implementation-approach
+    title: 实施方案
+    prompt_path: prompts/sections/实施方案/02-implementation-approach.md
+    intake_fields: [core_pain_points, existing_systems]
+    asset_needs: [实施方法论, 技术方案]    # S2 素材链 / 手段无关列类型
+  - id: "03"
+    section: implementation-plan
+    title: 实施计划
+    prompt_path: prompts/sections/实施方案/03-implementation-plan.md
+    intake_fields: [project_period]
+    asset_needs: [项目周期参考, 里程碑模板]    # S2 素材链 / 手段无关列类型
+  - id: "04"
+    section: team-organization
+    title: 组织保障
+    prompt_path: prompts/sections/实施方案/04-team-organization.md
+    intake_fields: []
+    asset_needs: [团队配置, 组织架构模板]    # S2 素材链 / 手段无关列类型
+  - id: "05"
+    section: quality-assurance
+    title: 质量与风险保障
+    prompt_path: prompts/sections/实施方案/05-quality-assurance.md
+    intake_fields: []
+    asset_needs: [质量体系, 风险清单]    # S2 素材链 / 手段无关列类型
+  - id: "06"
+    section: delivery-acceptance
+    title: 交付与验收
+    prompt_path: prompts/sections/实施方案/06-delivery-acceptance.md
+    intake_fields: [reference_cases]
+    asset_needs: [验收标准, 交付物清单]    # S2 素材链 / 手段无关列类型
+
+generation:
+  system_prompt: prompts/system.md
+  stages:
+    s1_extract: prompts/stages/s1-extract.md
+    s2_acquire: prompts/stages/s2-acquire.md
+    s4_generate: prompts/stages/s4-generate.md
+    s5_review: prompts/stages/s5-review.md
+  domain_plugin: prompts/domain/_空领域/glossary.md
+
+output:
+  template_docx: templates/实施方案/template.docx
+  filename_pattern: "{project_name}_实施方案.docx"
+  font_policy: 宋体

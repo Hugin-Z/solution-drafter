@@ -1,0 +1,9 @@
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+examples/*/output/
+.pytest_cache/
+.DS_Store
+examples/demo-最小示例/output.docx
