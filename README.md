@@ -10,7 +10,7 @@
 
 ## 它解决什么
 
-政企方案文档的痛点是固定的：输入零散、输出必须规范（仿宋 / 章节结构 / 政府格式）、内容要查历史素材、同一件事换个文档类型只需套不同骨架。solution-drafter 把这件事拆成**三层解耦 + 5 阶段调度**，让"加新文档类型不动框架、换领域不动文档类型"成为可执行的契约（有测试锁定）。
+政企方案文档的痛点是固定的：输入零散、输出必须规范（规范中文字体——默认正文宋体、可按 font_policy 切仿宋等 / 章节结构 / 政府格式）、内容要查历史素材、同一件事换个文档类型只需套不同骨架。solution-drafter 把这件事拆成**三层解耦 + 5 阶段调度**，让"加新文档类型不动框架、换领域不动文档类型"成为可执行的契约（有测试锁定）。
 
 ## 三层解耦架构
 
@@ -95,7 +95,7 @@ ISO 9001 / ISO/IEC 27001 认证；国家高新技术企业。
 ## 怎么加一个新文档类型（不动框架）
 
 1. 加 `templates/<doc_type>/outline.yaml`（intake_schema + outline + generation + output / 每 section 写 `asset_needs` + 注册 `s2_acquire` stage）。
-2. 加 `prompts/sections/<doc_type>/<NN>.md`（每 section：anchor + intake 依赖 + CoT + 输出格式 + 素材运用 + 红线）。
+2. 加 `prompts/sections/<doc_type>/<NN>.md`（每 section：anchor + intake 依赖 + 生成思路 + 输出格式 + 素材运用 + 红线）。
 3. 生成空 `template.docx`。
 4. `python scripts/validate_outline.py …` 校验通过。
 

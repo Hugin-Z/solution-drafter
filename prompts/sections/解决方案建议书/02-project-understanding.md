@@ -11,7 +11,7 @@
 - `client_industry`（必填）
 - `core_pain_points`（选填 list / 我方对痛点的再诠释 / 不是原文复述）
 
-## CoT 生成思路
+## 生成思路
 
 1. 引导句：本节阐述我方对 {project_name} 项目背景与需求的理解
 2. 客户业务定位段：把 `client_name` + `client_industry` 翻译为业务术语（"贵单位作为 <industry> 在 ... 方面承担 ... 职能"）

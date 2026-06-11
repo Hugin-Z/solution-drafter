@@ -9,7 +9,7 @@
 - `project_period`（必填）
 - `budget_range`（选填）
 
-## CoT 生成思路
+## 生成思路
 
 1. 引导句：本节给出项目总体实施节奏
 2. 按 `project_period` 字面拆阶段（典型 3-4 阶段，按项目周期长短调整）：

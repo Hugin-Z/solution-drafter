@@ -11,7 +11,7 @@
 - `client_industry`（必填）
 - `core_pain_points`（选填 list / 概述建设动因）
 
-## CoT 生成思路
+## 生成思路
 
 1. 引导句：本节概述 {project_name} 的实施背景与总体目标
 2. 项目背景段：`client_name` + `client_industry` 的业务背景与建设动因（引用 `core_pain_points`）

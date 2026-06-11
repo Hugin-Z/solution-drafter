@@ -15,7 +15,7 @@
   - `own_certifications`（产品认证 / 行业认证）
   - `own_team_size`（项目团队规模 / 行业经验年限）
 
-## CoT 生成思路
+## 生成思路
 
 1. 检查 `domain_plugin` 是否含 own_company_* 字段
 2. 若含 → 按段落渲染（公司简介 / 资质 / 产品 / 团队四段）

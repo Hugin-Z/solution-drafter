@@ -8,7 +8,7 @@
 
 - `reference_cases`（选填 list）
 
-## CoT 生成思路
+## 生成思路
 
 1. 引导句：本节列举我方与本项目相似的过往交付案例
 2. 逐条渲染 `reference_cases`：

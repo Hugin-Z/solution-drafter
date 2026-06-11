@@ -12,7 +12,7 @@
 - `existing_systems`（选填 list / 现有系统局限是亮点的反衬背景）
 - `reference_cases`（选填 list / 行业案例是亮点的参照系）
 
-## CoT 生成思路（真实 LLM 接入时执行）
+## 生成思路（真实 LLM 接入时执行）
 
 1. 从 `core_pain_points` 提取每条痛点的"现有方案的不足"
 2. 从 `existing_systems` 提取"现有系统未覆盖 / 集成度低 / 三维场景未赋能"等局限
