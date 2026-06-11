@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-_timing_hook.py · 阶段耗时埋点上下文管理器(V3-3)
+_timing_hook.py · 阶段耗时埋点上下文管理器
 
 每个核心脚本主入口包一层 stage_timer,记录起止时间 + 耗时秒数 + 成功状态,
 append 到 project_dir/output/_timing.json。

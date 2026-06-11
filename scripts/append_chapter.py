@@ -290,7 +290,7 @@ def append_markdown(document: Document, markdown_text: str,
     追加 markdown 到 docx。返回统计 dict。
 
     body_font:正文中文字体,由 outline.yaml 的 output.font_policy 驱动
-    (M7-g C-full / 默认宋体 / 标题仍黑体 / inline code 仍 Consolas)。
+    (默认宋体 / 标题仍黑体 / inline code 仍 Consolas)。
     """
     paragraph_buffer: list[str] = []
     table_buffer: list[str] = []
@@ -309,7 +309,7 @@ def append_markdown(document: Document, markdown_text: str,
             return
         headers, rows = parse_markdown_table(table_buffer)
         if headers:
-            # M7-h 高1:表格 header/body 字体随 body_font(原硬编码宋体漏传)
+            # 表格 header/body 字体随 body_font
             add_table(document, headers, rows,
                       header_east_asia=body_font, body_east_asia=body_font)
             stats["tables"] += 1
@@ -350,7 +350,7 @@ def append_markdown(document: Document, markdown_text: str,
         is_fig, caption_text = is_figure_caption(stripped)
         if is_fig:
             flush_paragraph(document, paragraph_buffer, stats, body_font)
-            add_figure_caption(document, caption_text, body_font=body_font)  # M7-h 高1:图注随 body_font
+            add_figure_caption(document, caption_text, body_font=body_font)  # 图注随 body_font
             stats["figures"] += 1
             continue
 
@@ -379,7 +379,7 @@ def append_markdown(document: Document, markdown_text: str,
     # 末尾 flush
     if table_buffer:
         flush_table()
-    flush_paragraph(document, paragraph_buffer, stats, body_font)  # M7-h 高1:末段补 body_font(原漏传回落宋体)
+    flush_paragraph(document, paragraph_buffer, stats, body_font)  # 末段补 body_font
 
     return stats
 

@@ -8,7 +8,7 @@
 
 - `draft.md`（各 section markdown 合并 / 含一级标题 + N 个二级标题段，N = 本 doc_type outline 的 section 数）
 - `intake_data`（用户字面）
-- 用户多轮对话反馈（M2 不接 / M5 接入）
+- 用户多轮对话反馈（demo 不接 / 真实接入）
 
 ## 评审维度
 

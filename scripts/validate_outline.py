@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-validate_outline.py · outline.yaml schema 校验 (M2 / 阶段 0 加载守门)
+validate_outline.py · outline.yaml schema 校验 (阶段 0 加载守门)
 
 输入: outline.yaml 路径 (默认 templates/<doc_type>/outline.yaml)
 输出: exit 0 (合规) / exit 非 0 (硬失败 + stderr 报告)
@@ -10,7 +10,7 @@ validate_outline.py · outline.yaml schema 校验 (M2 / 阶段 0 加载守门)
 - intake_schema.required / optional 非空 list[str]
 - outline 至少 1 个 section / id 唯一 / section 唯一
 - 每个 section 含 id / section / title / prompt_path / intake_fields / asset_needs 六字段
-- asset_needs 为非空 list[str] (M7-k 中-2 升必填 / S2 素材链 / 与 test_m7j + SKILL 三方对齐)
+- asset_needs 为非空 list[str] (S2 素材链 / 与 test + SKILL 三方对齐)
 - prompt_path 文件存在 (相对仓库根)
 - generation.system_prompt / stages.s1_extract / s2_acquire / s4_generate / s5_review 文件存在
 - generation.domain_plugin 文件存在
@@ -35,7 +35,7 @@ except ImportError:
 
 REQUIRED_TOP_FIELDS = ["doc_type", "version", "intake_schema", "outline", "generation", "output"]
 REQUIRED_SECTION_FIELDS = ["id", "section", "title", "prompt_path", "intake_fields", "asset_needs"]
-# M7-k 中-2: s2_acquire 加入必填 stage (M7-j 把 S2 升硬阶段但漏接守门 / 现与 SKILL + test 对齐)
+# s2_acquire 必填 stage (S2 是硬阶段 / 与 SKILL + test 对齐)
 REQUIRED_GENERATION_STAGES = ["s1_extract", "s2_acquire", "s4_generate", "s5_review"]
 
 
@@ -112,7 +112,7 @@ def validate(yaml_path: Path, repo_root: Path) -> list[str]:
                             f"outline[{idx}] intake_fields 含未定义字段: {f} "
                             f"(known: {sorted(known)})"
                         )
-        # M7-k 中-2: asset_needs 升必填 (S2 素材链 / 手段无关列素材类型 / 每 section 必有非空 list[str])
+        # asset_needs 必填 (S2 素材链 / 手段无关列素材类型 / 每 section 必有非空 list[str])
         # 缺失由 REQUIRED_SECTION_FIELDS 捕获; 此处校验类型 + 非空 + 元素非空 str。
         if "asset_needs" in sec:
             if not isinstance(sec["asset_needs"], list) or not sec["asset_needs"]:

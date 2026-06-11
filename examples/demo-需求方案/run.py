@@ -58,7 +58,7 @@ def safe_filename(value: object, default: str = "draft") -> str:
 
 def main() -> int:
     print("=" * 60)
-    print("solution-drafter · demo-需求方案 · M2 端到端")
+    print("solution-drafter · demo-需求方案 · 端到端")
     print("=" * 60)
 
     # ── 路径 ────────────────────────────────────────────────
@@ -115,7 +115,7 @@ def main() -> int:
         encoding="utf-8",
     )
     print(f"  落盘: {outline_filled_json.relative_to(REPO_ROOT)} ({outline_filled_json.stat().st_size} bytes)")
-    # M7-j S2 产物:fixture assets.json (示例素材 / 真实 agent 用其手段获取)
+    # S2 产物:fixture assets.json (示例素材 / 真实 agent 用其手段获取)
     _assets = build_demo_assets(outline_cfg)
     (output_dir / 'assets.json').write_text(json.dumps(_assets, ensure_ascii=False, indent=2), encoding='utf-8')
 

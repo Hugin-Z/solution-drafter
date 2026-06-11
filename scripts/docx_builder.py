@@ -131,7 +131,7 @@ def apply_default_styles(doc: Document, body_font: str = "宋体"):
     把默认样式表应用到文档的 Normal / Heading 1~4。
     v2:强制所有样式颜色为黑色 RGB(0,0,0),覆盖 Word 主题色。
     body_font:正文(Normal)中文字体,由 outline.yaml 的 output.font_policy 驱动
-    (M7-g C-full:不硬编码 / 默认宋体 / 改 outline font_policy 即换正文字体)。
+    (不硬编码 / 默认宋体 / 改 outline font_policy 即换正文字体)。
     标题(Heading 1~4)仍用 DEFAULT_STYLES 的黑体,不受 body_font 影响。
     """
     for style_name, conf in DEFAULT_STYLES.items():
@@ -454,7 +454,7 @@ def clean_docx_whitespace(doc: Document) -> int:
 def add_table_caption(doc: Document, caption_text: str, body_font: str = "宋体"):
     """添加表注:表 X xxx(SEQ 自动编号),通常放在表格上方。
 
-    M7-i:body_font 随 outline.yaml 的 font_policy(原硬编码宋体 / 补全 run 级覆盖最后一块)。
+    body_font 随 outline.yaml 的 font_policy。
     """
     caption_text = to_simplified(caption_text)
     p = doc.add_paragraph()
@@ -615,7 +615,7 @@ def create_section_doc(out_path: Path, body_font: str = "宋体") -> Path:
     正文章节。不包含封面、目录、页眉、页脚。
 
     body_font:正文中文字体,由 outline.yaml 的 output.font_policy 驱动
-    (M7-g C-full / 默认宋体 / 改 font_policy 即换正文字体 / 不动代码)。
+    (默认宋体 / 改 font_policy 即换正文字体 / 不动代码)。
 
     与 create_full_doc 的区别:
     - create_full_doc: 完整单文档骨架(封面+目录+正文容器)

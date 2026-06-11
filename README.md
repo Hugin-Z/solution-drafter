@@ -1,5 +1,6 @@
 # solution-drafter
 
+[![CI](https://github.com/Hugin-Z/solution-drafter/actions/workflows/ci.yml/badge.svg)](https://github.com/Hugin-Z/solution-drafter/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/)
 
@@ -60,6 +61,36 @@ python -m pytest -q
 ```
 
 产物在 `examples/demo-*/output/`：`draft.md`（markdown 终稿）+ `<项目名>_<类型>.docx`（字体合规的政府格式 docx）。
+
+## 输出样例
+
+`python examples/demo-槐序数据领域/run.py`（虚构领域插件 + 虚构项目）生成的正文片段（节选）：
+
+```markdown
+# 云阙新区一体化数据服务平台一期建设项目 解决方案建议书
+
+## 公司实力
+
+### 公司简介
+
+槐序数据科技有限公司（虚构）成立于 2015 年，是一家面向政企客户的时空数据与一体化
+数据治理服务商。公司以自研的「方舆时空数据平台」与「编册数据中台」为核心，为各级
+政府和企事业单位提供数据汇聚、治理、共享与可视化的一体化解决方案……
+
+### 资质与认证
+
+（虚构资质示例）信息系统集成及服务资质、CMMI 五级、ITSS 三级、DCMM 三级；
+ISO 9001 / ISO/IEC 27001 认证；国家高新技术企业。
+
+依据已获取的公司资质素材：【示例素材:公司资质】           ← ① S2 素材消费（acquired 织入正文）
+
+（业绩相关素材尚未获取，此处【待补充】。）                  ← ② 待补充占位（素材没获取到，诚实标注、不编造）
+```
+
+- **① 领域插件填充**：「公司实力」由 L3 领域插件 `prompts/domain/槐序数据/` 的 `own_*` 字段填充——对照默认空领域（`demo-解决方案建议书`）此处整段输出【待补充】，可直观看出 L3 接入前后差异。
+- **② S2→S4 素材消费 + 待补充占位**：S2 获取到的素材被实质织入正文，没获取到的诚实落「【待补充】」、不编造——这是本框架的核心机制（事实必须有来源）。
+
+> 公司 / 产品 / 项目均为虚构示例（槐序数据 / 方舆 / 编册 / 云阙新区），不指向任何真实主体。
 
 ## 怎么加一个新文档类型（不动框架）
 

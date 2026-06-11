@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 """
-llm_stub_local.py · M7 阶段 1 demo-local stub (implementation-plan 6 section)
+llm_stub_local.py · demo-local stub (implementation-plan 6 section)
 
 ⚠️ stub 退场说明 (非真实 agent 工作流路径):
 demo fixture / 跑通 implementation-plan 端到端管道. 真实 agent 在 S4 自己读 section prompt 生成 / 不调本文件.
 接口签名严格对齐 L1 scripts/llm_stub.py.generate_section_content.
 
 section: 01 项目概述 / 02 实施方案 / 03 实施计划 / 04 组织保障 / 05 质量与风险保障 / 06 交付与验收
-04 (own_team_size 缺口) → 团队架构骨架 + 具体人数【待补充】 (L13 / L14).
+04 (own_team_size 字段) → 团队架构骨架 + 具体人数【待补充】.
 """
 
 from __future__ import annotations
@@ -149,7 +149,7 @@ _RENDERERS = {
 
 
 def _render_assets_block(section_assets: dict | None) -> str:
-    """M7-k 高-2: 消费 S2 产出的本 section 素材 (assets.json 的 sections[<id>])。
+    """消费 S2 产出的本 section 素材 (assets.json 的 sections[<id>])。
 
     acquired 的 content 拼成支撑句进正文 / 待补充的素材点位落【待补充】(不编造 / 红线 3)。
     section_assets=None (未传 / 向后兼容) → 空串。demo fixture / 真实 agent 自读自消费。

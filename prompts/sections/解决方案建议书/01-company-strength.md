@@ -8,8 +8,8 @@
 
 ## intake 字段依赖
 
-- 无 M2 intake_schema 字段
-- 实际依赖（L3 领域插件层 / M4 填充）：
+- 无 intake_schema 字段
+- 实际依赖（L3 领域插件层填充）：
   - `own_company_brief`（公司简介 / 成立年份 / 员工规模 / 行业地位）
   - `own_qualifications`（资质清单 / ISO / CMMI / 测绘资质 / 等级保护资质等）
   - `own_certifications`（产品认证 / 行业认证）

@@ -14,7 +14,7 @@
 2. 逐条渲染 `reference_cases`：
    - 案例名 / 客户行业 / 实施年份（来源：reference_cases 字面）
    - 项目背景与挑战（基于 `client_industry` + `core_pain_points` 反推 / 不脑补具体数字）
-   - 我方承担工作（L3 领域插件层提供 / M2/M3 stub 阶段写【待补充】）
+   - 我方承担工作（L3 领域插件层提供 / stub 阶段写【待补充】）
    - 交付成果（同上）
 3. 若 `reference_cases` 为空 / 整段写【待补充】
 

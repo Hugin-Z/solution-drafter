@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-demo-最小示例/run.py - M1 端到端 docx 生成 demo
+demo-最小示例/run.py - 端到端 docx 生成 demo
 
 调用链:
     docx_builder.create_section_doc  -> 产出空 docx (内部 save / 返回 Path)
@@ -9,7 +9,7 @@ demo-最小示例/run.py - M1 端到端 docx 生成 demo
     doc.save                          -> 显式 save
     check_font_safety.check_font_safety -> 字体合规校验
 
-走模块 API / 不走 subprocess (CLI 路径依赖 brief_schema / M1 不迁移)。
+走模块 API / 不走 subprocess。
 """
 
 import sys

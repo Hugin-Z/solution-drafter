@@ -17,7 +17,7 @@ from __future__ import annotations
 from pathlib import Path
 
 
-# ── 字体常量（compliance_check.py line 67-85 / V3-8 fontTable 引入）─────
+# ── 字体常量 ─────
 # 中文字体规范名 → 别名清单（归一化目标）
 _CHINESE_CANONICAL: dict[str, list[str]] = {
     "宋体":     ["宋体", "SimSun", "宋体-简", "NSimSun", "STSong", "宋体-繁"],
@@ -48,9 +48,9 @@ def _normalize_font_alias(font_name: str) -> str:
     return font_name
 
 
-# ── fontTable.xml 级 warn 检查（compliance_check.py line 341-379 / V3-8 引入）─────
+# ── fontTable.xml 级 warn 检查 ─────
 def _check_fonttable(docx_path) -> list[str]:
-    """V3-8：解析 word/fontTable.xml，返回非白名单且非 boilerplate 字体的 warn 列表。"""
+    """解析 word/fontTable.xml，返回非白名单且非 boilerplate 字体的 warn 列表。"""
     import zipfile as _zipfile
     import xml.etree.ElementTree as _ET
 
@@ -90,10 +90,10 @@ def _check_fonttable(docx_path) -> list[str]:
     ]
 
 
-# ── 字体安全检查主函数（compliance_check.py line 382-463 / v2 补丁 2 + V3-8 fontTable 集成）─────
+# ── 字体安全检查主函数 ─────
 def check_font_safety(docx_path: Path, declared_font: str | None = None) -> list[str]:
     """
-    v2 补丁 2:字体安全检查(回归检查项)。
+    字体安全检查(回归检查项)。
 
     扫 docx 的 word/styles.xml + word/document.xml,确保:
     - Normal 样式必须有 <w:rFonts> 且 w:eastAsia 在中文白名单
@@ -101,7 +101,7 @@ def check_font_safety(docx_path: Path, declared_font: str | None = None) -> list
     - 所有 run 级 <w:rFonts> 的 w:eastAsia 在上述白名单
     - 所有 run 级 <w:rFonts> 的 w:ascii 在 ("Times New Roman",)
 
-    declared_font (M7-g C-full font_policy 校验):若给定,额外断言
+    declared_font (font_policy 校验):若给定,额外断言
     Normal 样式实际 eastAsia == declared_font (= outline.yaml 的 output.font_policy)。
     防"声明仿宋 / 实际宋体"契约不一致回归 (Codex 三审 高1)。None 时跳过该校验
     (向后兼容 / 现有调用不传则仅白名单校验)。
@@ -162,7 +162,7 @@ def check_font_safety(docx_path: Path, declared_font: str | None = None) -> list
     run_rfonts = _re.findall(r'<w:rFonts\s[^/]*/?>', document_xml)
     bad_ea: dict = {}
     bad_ascii: dict = {}
-    # M7-h 高1:run 级 font_policy 契约校验。declared_font 给定时,所有正文 run 的
+    # run 级 font_policy 契约校验。declared_font 给定时,所有正文 run 的
     # eastAsia 必须 ∈ {declared_font, 黑体}(标题黑体放行 / inline code 的 eastAsia 已=body_font)。
     # 任何 run 回落非声明字体(如 body_font=仿宋 时末段/表格/图注漏传成宋体)当场命中。
     policy_bad_ea: dict = {}
@@ -194,7 +194,7 @@ def check_font_safety(docx_path: Path, declared_font: str | None = None) -> list
             f"(白名单 {sorted(ALLOWED_ASCII)})"
         )
 
-    # ── V3-8 新增：fontTable.xml 级检查（warn 级）
+    # ── fontTable.xml 级检查（warn 级）
     issues.extend(_check_fonttable(docx_path))
 
     return issues

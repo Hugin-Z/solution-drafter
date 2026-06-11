@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 """
-llm_stub.py · LLM 调用 stub (M2 阶段管道验证 / M5 真实接 Anthropic API 时替换实现)
+llm_stub.py · LLM 调用 stub (端到端管道验证 / 真实接 LLM API 时替换实现)
 
-⚠️ M5 stub 退场说明 (非真实 agent 工作流路径):
-本文件是 tests / demo fixture / 用于 M2-M4 端到端 demo 跑通管道连通性 + tests CI.
+⚠️ stub 退场说明 (非真实 agent 工作流路径):
+本文件是 tests / demo fixture / 用于端到端 demo 跑通管道连通性 + tests CI.
 真实 agent 工作流 (Claude Code / Cline 跑 SKILL.md) 在 S4 阶段不调本文件 / agent 自己读
 prompts/sections/<doc_type>/*.md + domain plugin / 自己生成 section markdown.
 本 stub 不删 (tests 仍依赖 / fixture 价值) / 仅声明 SKILL.md S4 不走 stub 路径.
@@ -20,7 +20,7 @@ stub 实现策略:
 - 用 intake_data + intake_fields 拼装 markdown
 - 缺失字段填"【待补充】" (沿红线 4 / 不外泄内部术语 / 不虚构事实)
 
-M5 替换:
+真实接入替换:
 - 同函数签名 / 同返回类型
 - 函数体内 stub 逻辑 → 调 anthropic.Anthropic().messages.create(...)
 - 调用方 (run.py) 主流程零改动
@@ -198,10 +198,10 @@ _RENDERERS = {
 
 
 def _render_assets_block(section_assets: dict | None) -> str:
-    """M7-k 高-2: 消费 S2 产出的本 section 素材 (assets.json 的 sections[<id>])。
+    """消费 S2 产出的本 section 素材 (assets.json 的 sections[<id>])。
 
     acquired 的 content 拼成支撑句进正文 / 待补充的素材点位落【待补充】(不编造 / 红线 3)。
-    section_assets=None (未传 / 向后兼容) → 空串 (行为同 M7-j 前 / 不破坏旧调用)。
+    section_assets=None (未传 / 向后兼容) → 空串 (不破坏旧调用)。
 
     注: 本 stub 是 demo fixture (非真 LLM)。真实 agent 自读 assets.json 自行消费
     (见 prompts/stages/s4-generate.md + 各 section prompt 的 "素材运用" 小节)。
@@ -235,12 +235,12 @@ def generate_section_content(
     """
     Stub 实现 / 按 section_id 分支渲染 markdown.
 
-    M5 替换点: 函数体替换为 anthropic.Anthropic().messages.create(...) 调用,
+    真实接入替换点: 函数体替换为 anthropic.Anthropic().messages.create(...) 调用,
     入参拼装 system_prompt + stage_prompt + section_prompt + intake_data
     + section_assets (S2 产出该 section 素材) 投喂 LLM, 返回 LLM 输出的 markdown 字面.
 
-    M7-k 高-2: section_assets = assets.json["sections"][<id>] (S2 产出 / 强依赖)。
-    默认 None 向后兼容 (不传则行为同 M7-j 前)。
+    section_assets = assets.json["sections"][<id>] (S2 产出 / 强依赖)。
+    默认 None 向后兼容。
     """
     renderer = _RENDERERS.get(section_id)
     if renderer is None:

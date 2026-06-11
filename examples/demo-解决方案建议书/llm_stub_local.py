@@ -1,21 +1,21 @@
 # -*- coding: utf-8 -*-
 """
-llm_stub_local.py · M3 demo-local stub (proposal-document 6 section)
+llm_stub_local.py · demo-local stub (proposal-document 6 section)
 
-⚠️ M5 stub 退场说明 (非真实 agent 工作流路径):
-本文件是 demo fixture / 用于 M3 端到端 demo 跑通管道连通性 + 验证 L12 demo-stage stub 范式.
+⚠️ stub 退场说明 (非真实 agent 工作流路径):
+本文件是 demo fixture / 用于端到端 demo 跑通管道连通性.
 真实 agent 工作流 (Claude Code / Cline 跑 SKILL.md) 在 S4 阶段不调本文件 / agent 自己读
 prompts/sections/解决方案建议书/*.md + domain plugin / 自己生成 section markdown.
-本 stub 不删 (M3 demo 跑通管道证据 + tests 可能依赖) / 仅声明 SKILL.md S4 不走 stub 路径.
+本 stub 不删 (demo 跑通管道证据 + tests 可能依赖) / 仅声明 SKILL.md S4 不走 stub 路径.
 详见仓库根 SKILL.md "stub 与真实工作流的关系" 段.
 
-Surface 2 决策 E: demo-local stub 解 / L1 scripts/llm_stub.py 字节级 0 改动 / M3 仅在
+demo-local stub / L1 scripts/llm_stub.py 0 改动 / 仅在
 本 demo 目录新增本文件 / run.py 改 1 处 import 来源.
 
 接口签名严格对齐 L1 scripts/llm_stub.py.generate_section_content / 不变.
-M5 真实 LLM 接入时本文件退场 / 同 L1 stub 一起被 anthropic API 取代.
+真实 LLM 接入时本文件退场 / 同 L1 stub 一起被 anthropic API 取代.
 
-stub 实现策略 (M3 sales-oriented section):
+stub 实现策略 (sales-oriented section):
 - 01 公司实力: L2 intake_schema 无字段 / 整段【待补充】 + 4 字段缺口声明
 - 02 项目理解: 站我方视角对客户问题再诠释
 - 03 方案架构: 5 层 + 技术选型 / 引用 existing_systems + reference_cases
@@ -224,7 +224,7 @@ _RENDERERS = {
 
 
 def _render_assets_block(section_assets: dict | None) -> str:
-    """M7-k 高-2: 消费 S2 产出的本 section 素材 (assets.json 的 sections[<id>])。
+    """消费 S2 产出的本 section 素材 (assets.json 的 sections[<id>])。
 
     acquired 的 content 拼成支撑句进正文 / 待补充的素材点位落【待补充】(不编造 / 红线 3)。
     section_assets=None (未传 / 向后兼容) → 空串。demo fixture / 真实 agent 自读自消费。
@@ -258,10 +258,10 @@ def generate_section_content(
     """
     Stub 实现 / 按 section_id 分支渲染 proposal-document 6 section markdown.
 
-    M5 替换点: 函数体替换为 anthropic.Anthropic().messages.create(...) 调用 /
+    真实接入替换点: 函数体替换为 anthropic.Anthropic().messages.create(...) 调用 /
     入参拼装 system_prompt + stage_prompt + section_prompt + intake_data 投喂 LLM /
     本文件 + scripts/llm_stub.py 一起退场.
-    M7-k 高-2: section_assets (S2 产出该 section 素材) / 默认 None 向后兼容.
+    section_assets (S2 产出该 section 素材) / 默认 None 向后兼容.
     """
     renderer = _RENDERERS.get(section_id)
     if renderer is None:

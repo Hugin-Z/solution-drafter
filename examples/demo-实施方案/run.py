@@ -52,7 +52,7 @@ def safe_filename(value: object, default: str = "draft") -> str:
 
 def main() -> int:
     print("=" * 60)
-    print(f"solution-drafter · demo-{DOC_TYPE_DIR} · M7 阶段 1 端到端")
+    print(f"solution-drafter · demo-{DOC_TYPE_DIR} · 端到端")
     print("=" * 60)
 
     outline_yaml = REPO_ROOT / "templates" / DOC_TYPE_DIR / "outline.yaml"
@@ -65,7 +65,7 @@ def main() -> int:
     output_dir.mkdir(parents=True, exist_ok=True)
 
     outline_cfg = yaml.safe_load(outline_yaml.read_text(encoding="utf-8"))
-    # M7-j S2 产物:fixture assets.json (示例素材 / 真实 agent 用其手段获取)
+    # S2 产物:fixture assets.json (示例素材 / 真实 agent 用其手段获取)
     _assets = build_demo_assets(outline_cfg)
     (output_dir / 'assets.json').write_text(json.dumps(_assets, ensure_ascii=False, indent=2), encoding='utf-8')
     print(f"\n[1/7] outline.yaml: doc_type={outline_cfg['doc_type']} / sections={len(outline_cfg['outline'])}")
@@ -130,7 +130,7 @@ def main() -> int:
     if issues:
         print(f"DEMO FAIL / check_font_safety {len(issues)} 处问题")
         return 1
-    print(f"DEMO PASS / M7 实施方案 6 section + docx + font 全合规")
+    print(f"DEMO PASS / 实施方案 6 section + docx + font 全合规")
     print(f"  final.docx: {final_docx}")
     print("=" * 60)
     return 0

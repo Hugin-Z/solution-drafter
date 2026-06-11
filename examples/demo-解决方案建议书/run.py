@@ -21,7 +21,7 @@ DEMO_DIR = Path(__file__).resolve().parent
 REPO_ROOT = DEMO_DIR.parent.parent
 SCRIPTS_DIR = REPO_ROOT / "scripts"
 sys.path.insert(0, str(SCRIPTS_DIR))
-sys.path.insert(0, str(DEMO_DIR))   # M3 Surface 2 E: 让 demo-local stub 可 import
+sys.path.insert(0, str(DEMO_DIR))   # 让 demo-local stub 可 import
 
 # ── 依赖 (前置 verify: PyYAML / docx_builder / append_chapter / check_font_safety / llm_stub_local) ──
 try:
@@ -43,7 +43,7 @@ from _demo_s5 import s5_review_and_render
 from docx_builder import create_section_doc, clean_docx_whitespace
 from append_chapter import append_markdown
 from check_font_safety import check_font_safety
-from llm_stub_local import generate_section_content   # M3 Surface 2 E: demo-local stub
+from llm_stub_local import generate_section_content   # demo-local stub
 
 
 def safe_filename(value: object, default: str = "draft") -> str:
@@ -55,7 +55,7 @@ def safe_filename(value: object, default: str = "draft") -> str:
 
 def main() -> int:
     print("=" * 60)
-    print("solution-drafter · demo-解决方案建议书 · M3 端到端")
+    print("solution-drafter · demo-解决方案建议书 · 端到端")
     print("=" * 60)
 
     # ── 路径 ────────────────────────────────────────────────
@@ -112,7 +112,7 @@ def main() -> int:
         encoding="utf-8",
     )
     print(f"  落盘: {outline_filled_json.relative_to(REPO_ROOT)} ({outline_filled_json.stat().st_size} bytes)")
-    # M7-j S2 产物:fixture assets.json (示例素材 / 真实 agent 用其手段获取)
+    # S2 产物:fixture assets.json (示例素材 / 真实 agent 用其手段获取)
     _assets = build_demo_assets(outline_cfg)
     (output_dir / 'assets.json').write_text(json.dumps(_assets, ensure_ascii=False, indent=2), encoding='utf-8')
 

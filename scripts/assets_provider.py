@@ -49,7 +49,7 @@ class AssetsProvider(ABC):
 
 
 class PlaceholderAssetsProvider(AssetsProvider):
-    """V61 本轮实现:所有 lookup 返回占位 AssetRef,resolve 产出占位 docx。
+    """所有 lookup 返回占位 AssetRef,resolve 产出占位 docx。
 
     不查任何真实资源。仅供接口基建验证 / 占位运行。
     """
