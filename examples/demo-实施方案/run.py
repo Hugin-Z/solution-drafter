@@ -35,6 +35,7 @@ except ImportError:
 import sys as _sys
 _sys.path.insert(0, str(REPO_ROOT / 'examples'))
 from _demo_assets import build_demo_assets
+from _demo_s5 import s5_review_and_render
 from docx_builder import create_section_doc, clean_docx_whitespace
 from append_chapter import append_markdown
 from check_font_safety import check_font_safety
@@ -90,43 +91,39 @@ def main() -> int:
         json.dumps(outline_filled, ensure_ascii=False, indent=2), encoding="utf-8")
     print(f"[4/7] outline_filled.json 落盘")
 
-    # ── 逐 section 生成 → 逐段 append+save 落盘 (M7-l 缺口1+4: 不攒齐再写 / 中途断保住已写) ─
-    print(f"[5/7] 逐 section 生成 + 逐段落盘 (append+save 每段 / 不攒齐):")
-    body_font = outline_cfg["output"].get("font_policy", "宋体")  # M7-g C-full font_policy 驱动
+    # ── 5. S4 内容生成: 逐 section 生成 → 逐段 append 到 draft.md (crash-safe / 不攒齐) ─
+    print(f"[5/7] S4 逐 section 生成 → draft.md 逐段落盘:")
+    body_font = outline_cfg["output"].get("font_policy", "宋体")  # font_policy 驱动正文字体
     doc_title = f"# {intake_data.get('project_name', '【待补充】')} {outline_cfg['doc_type_zh']}\n"
-    safe_name = safe_filename(intake_data.get("project_name"))
-    final_docx = output_dir / f"{safe_name}_{outline_cfg['doc_type_zh']}.docx"
     draft_md = output_dir / "draft.md"
-
-    create_section_doc(final_docx, body_font=body_font)
-    document = Document(str(final_docx))
-    stats = append_markdown(document, doc_title, body_font=body_font)  # M7-l: 一级标题先落盘
-    document.save(str(final_docx))
     draft_md.write_text(doc_title + "\n", encoding="utf-8")
-
+    section_markdowns: list[str] = []
     for sec in outline_cfg["outline"]:
         section_prompt = (REPO_ROOT / sec["prompt_path"]).read_text(encoding="utf-8")
         md = generate_section_content(
             section_id=sec["id"], section_title=sec["title"], section_prompt=section_prompt,
             intake_data=intake_data, intake_fields=sec["intake_fields"],
             system_prompt=system_prompt, stage_prompt=stage_prompt, domain_plugin=domain_plugin,
-            section_assets=_assets["sections"][sec["id"]],   # M7-k 高-2: S2 素材消费
+            section_assets=_assets["sections"][sec["id"]],   # S2 素材消费
         )
-        s = append_markdown(document, md, body_font=body_font)   # M7-l 缺口1+4: 逐 section 追加
-        document.save(str(final_docx))                            # 每 section 落盘 (中途断保住已写)
+        section_markdowns.append(md)
         with draft_md.open("a", encoding="utf-8") as f:
-            f.write("\n" + md + "\n")                             # draft.md 同步逐段追加
-        for k in stats:
-            stats[k] += s.get(k, 0)
-        print(f"  [{sec['id']}] {sec['title']}: {len(md)} chars / 已落盘")
-
-    cleaned = clean_docx_whitespace(document)
-    document.save(str(final_docx))
+            f.write("\n" + md + "\n")                             # draft.md 逐段追加 (中途断保住已写)
+        print(f"  [{sec['id']}] {sec['title']}: {len(md)} chars / draft 已落盘")
     draft_text = draft_md.read_text(encoding="utf-8")
-    h2 = draft_text.count(chr(10) + "## ")
-    print(f"[6/7] draft.md 逐段落盘 / 二级标题数: {h2}")
-    issues = check_font_safety(final_docx, declared_font=body_font)
-    print(f"[7/7] final.docx: {final_docx.stat().st_size} bytes / stats={stats} / cleaned={cleaned}")
+    print(f"[6/7] S4 draft.md 完成 / 二级标题数: {draft_text.count(chr(10) + '## ')}")
+
+    # ── 7. S5: s5-review 自检 → final.md + 逐段渲染 final.docx ─
+    s5_review_md = (REPO_ROOT / outline_cfg["generation"]["stages"]["s5_review"]).read_text(encoding="utf-8")
+    safe_name = safe_filename(intake_data.get("project_name"))
+    final_md = output_dir / "final.md"
+    final_docx = output_dir / outline_cfg["output"]["filename_pattern"].format(project_name=safe_name)  # 套用 filename_pattern
+    sc_issues, issues, stats = s5_review_and_render(
+        draft_text=draft_text, section_markdowns=section_markdowns, doc_title=doc_title,
+        outline_cfg=outline_cfg, s5_review_md=s5_review_md,
+        final_md_path=final_md, final_docx_path=final_docx,
+    )
+    print(f"[7/7] S5: final.md + final.docx 落盘 / s5-review 自检 {len(sc_issues)} 项 / stats={stats}")
     print(f"      check_font_safety: {issues}")
 
     print("\n" + "=" * 60)

@@ -14,7 +14,8 @@ validate_outline.py · outline.yaml schema 校验 (M2 / 阶段 0 加载守门)
 - prompt_path 文件存在 (相对仓库根)
 - generation.system_prompt / stages.s1_extract / s2_acquire / s4_generate / s5_review 文件存在
 - generation.domain_plugin 文件存在
-- output.template_docx 父目录存在 (template.docx 本身可能 M2 内才生成)
+- output.template_docx 为预留待实现字段: 不校验 (从模板创建文档当前未实现 / 见 SKILL 输出契约)
+- output.font_policy 须在 check_font_safety 字体白名单 (单一权威 / 配错在 validate 就拦)
 
 R10: 硬失败 / 不造默认值兜底 / 不做语义推断
 """
@@ -148,17 +149,27 @@ def validate(yaml_path: Path, repo_root: Path) -> list[str]:
     if not isinstance(out, dict):
         issues.append("output 应为 dict")
     else:
-        tpl = out.get("template_docx")
-        if not tpl:
-            issues.append("output.template_docx 缺")
-        else:
-            tpl_parent = (repo_root / tpl).parent
-            if not tpl_parent.exists():
-                issues.append(f"output.template_docx 父目录不存在: {tpl_parent}")
+        # template_docx 是预留待实现字段 (从模板创建文档 / 当前生成标准格式 / 见 SKILL 输出契约)。
+        # validate 不校验它: 原"只查父目录存在"是双重摆设 (父目录=模板目录必然存在 / 且字段无人消费)。
+        # 诚实标未兑现 / 不假装校验 / 字段可有可无。
         if not out.get("filename_pattern"):
             issues.append("output.filename_pattern 缺")
         if not out.get("font_policy"):
             issues.append("output.font_policy 缺")
+        else:
+            # font_policy 必须在 check_font_safety 字体白名单 (单一权威)。
+            # 原"只查非空"是漏网: font_policy=楷体 能过 validate 却在渲染时炸。
+            import sys as _sys
+            _sys.path.insert(0, str(Path(__file__).resolve().parent))
+            try:
+                from check_font_safety import _normalize_font_alias, _FONT_ALLOWED_NORMALIZED
+                if _normalize_font_alias(out["font_policy"]) not in _FONT_ALLOWED_NORMALIZED:
+                    issues.append(
+                        f"output.font_policy={out['font_policy']!r} 不在字体白名单 "
+                        f"(口径见 check_font_safety._FONT_ALLOWED_NORMALIZED)"
+                    )
+            except ImportError:
+                pass
 
     return issues
 

@@ -4,7 +4,7 @@
 
 doc_type: implementation-plan
 doc_type_zh: 实施方案
-version: v0
+version: v0    # 惰性字段: version 仅元数据 (无逻辑分支消费) / outline[].section 仅 validate 去重用 (run.py 用 id/title/prompt_path/intake_fields)
 
 intake_schema:
   required:
@@ -66,6 +66,6 @@ generation:
   domain_plugin: prompts/domain/_空领域/glossary.md
 
 output:
-  template_docx: templates/实施方案/template.docx
+  template_docx: templates/实施方案/template.docx    # 待实现: 从模板创建文档 (当前生成标准格式 / 见 SKILL 输出契约)
   filename_pattern: "{project_name}_实施方案.docx"
   font_policy: 宋体
