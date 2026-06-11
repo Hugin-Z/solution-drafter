@@ -1,22 +1,15 @@
 # -*- coding: utf-8 -*-
 """
-check_font_safety.py · 字体安全检查（从 tender-writer-v3 compliance_check.py 抽取）
+check_font_safety.py · 字体安全检查（docx 字体白名单 + fontTable 双层校验）
 
-抽取范围（compliance_check.py 4 块共 146 行）:
-    - line 67-85   : _CHINESE_CANONICAL / _FONT_ALLOWED_NORMALIZED / _FONT_BOILERPLATE_TOLERATED 三字体常量（V3-8 fontTable 引入）
-    - line 333-338 : _normalize_font_alias  字体别名归一化
-    - line 341-379 : _check_fonttable       V3-8 fontTable.xml 级 warn 检查
-    - line 382-463 : check_font_safety      段落级 styles.xml + document.xml 白名单检查（主公共函数）
+提供:
+    - _CHINESE_CANONICAL / _FONT_ALLOWED_NORMALIZED / _FONT_BOILERPLATE_TOLERATED 三字体常量
+    - _normalize_font_alias  字体别名归一化
+    - _check_fonttable       fontTable.xml 级 warn 检查
+    - check_font_safety      段落级 styles.xml + document.xml 白名单检查（主公共函数）
 
 依赖:
-    - stdlib only (re / zipfile / xml.etree.ElementTree / pathlib)
-    - 无第三方依赖
-    - 无 tender-writer 内部依赖
-    - 抽取字面 0 改动 / 不重命名 / 不加 type hint / 不改 docstring
-
-来源:
-    tender-writer-v3 scripts/compliance_check.py
-    MIGRATION_MAP §一.5 / 薄适配抽取
+    - stdlib only (re / zipfile / xml.etree.ElementTree / pathlib) / 无第三方依赖
 """
 
 from __future__ import annotations

@@ -35,7 +35,7 @@
 | 阶段 | 输入 | 输出 | 用户参与 |
 |---|---|---|---|
 | S1 信息抽取 | 用户零散输入 | `intake.json` | 对话 ack |
-| S2 资料获取 | `intake.json` + asset_needs | `assets.json` | 无（agent 用环境手段主动获取 / 手段无关）|
+| S2 资料获取 | `intake.json` + asset_needs | `assets.json` | 无（agent 用环境手段主动获取 / 手段无关 / 框架只定义 `assets.json` 契约，不提供真实素材库）|
 | S3 模板填充 | `intake.json` + outline.yaml | `outline_filled.json` | 无（纯结构化映射）|
 | S4 内容生成 | `outline_filled.json` + assets + prompts | `draft.md` | 无（逐 section 落盘 / 长文档不断流）|
 | S5 评审修订 | `draft.md` | `final.md` + `final.docx` | 多轮对话迭代 |

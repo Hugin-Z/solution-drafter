@@ -31,15 +31,15 @@
 
 ## 逐 section 落盘（长文档不断流 / 强制）
 
-逐 section 生成时，**每生成完一个 section 立即落盘，再生成下一个**，不要把整本攒在上下文里最后一次性写：
+S4 的产物是 `draft.md`（文本）。逐 section 生成时，**每生成完一个 section 立即把它追加写入 `draft.md` 落盘，再生成下一个**，不要把整本攒在上下文里最后一次性写：
 
-1. 先建空 docx 容器（`create_section_doc`），把一级标题 `append_markdown` 进去并 `document.save()`。
-2. **对每个 section：生成该 section markdown → `append_markdown(document, 本section_md)` → `document.save()` 落盘 → 再生成下一个。**
-3. 全部 section 写完后做一次整体清理（`clean_docx_whitespace`）+ final `save`。
+1. 先把一级标题写入 `draft.md`。
+2. **对每个 section：生成该 section markdown → 追加写入 `draft.md`（append 模式 / 落盘）→ 再生成下一个。**
+3. （docx 渲染不在 S4：S5 走 `s5-review.md` 自检得 `final.md` 后，再逐 section `append_markdown` + `save` 渲染 `final.docx` / 见 SKILL "docx 工具调用三步"。S4 不写 docx。）
 
-**原因**：LLM 单次输出有 token 上限，几万~几十万字的长方案文档若一口气生成整本会被截断；逐 section 落盘后，即使中途断（上下文耗尽 / 进程中断），已写入磁盘的 section 也保住，可重读续写——而"攒齐再写"在最后一次 save 前磁盘是空的，中途断已生成的全丢。
+**原因**：LLM 单次输出有 token 上限，几万~几十万字的长方案文档若一口气生成整本会被截断；逐 section 写入 draft.md 落盘后，即使中途断（上下文耗尽 / 进程中断），已写入磁盘的 section 也保住，可重读续写——而"攒齐再写"在最后一次写盘前磁盘是空的，中途断已生成的全丢。
 
-**单 section 超长再分批（通则）**：若**单个 section 本身**展开很长（如"方案架构""实施计划"含多个三级分层），按其**三级标题逐块生成 + 逐块 `append_markdown` + save**，不在一次输出里写完整个 section（同理避免单 section 撞单次 token 上限被截）。
+**单 section 超长再分批（通则）**：若**单个 section 本身**展开很长（如"方案架构""实施计划"含多个三级分层），按其**三级标题逐块生成 + 逐块写入 draft.md**，不在一次输出里写完整个 section（同理避免单 section 撞单次 token 上限被截）。
 
 ## S2 素材强依赖（核心 / 后果链）
 

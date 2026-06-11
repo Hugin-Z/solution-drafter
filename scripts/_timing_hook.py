@@ -17,7 +17,7 @@ append 到 project_dir/output/_timing.json。
     def main():
         # ... 解析 args ...
         project_dir = ROOT / 'projects' / args.project
-        with stage_timer("parse_tender", project_dir):
+        with stage_timer("s4_generate", project_dir):
             # ... 原 main 逻辑 ...
             pass
 """

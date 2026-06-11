@@ -3,7 +3,7 @@
 append_chapter.py · 将 markdown 章节追加到现有 docx（阶段 4 辅助脚本）
 
 输入:
-    output/tender_response.docx
+    output/<文档>.docx
     章节 markdown 文件
 
 能力:
@@ -389,11 +389,7 @@ def append_markdown(document: Document, markdown_text: str,
 # ─────────────────────────────────────────────
 
 def _print_cli_notice() -> None:
-    """M7-i:本模块无 CLI 入口。一跑显示用法说明(不依赖 brief_schema / 不撞坏路径)。
-
-    历史:tender-writer 原 main() 走 brief_schema review gate(投标特化 / 未迁移到
-    solution-drafter)。M7-i 删该死代码 / CLI 改为说明,避免依赖未迁移模块的死函数。
-    """
+    """本模块无 CLI 入口 / 走模块 API。一跑显示用法说明。"""
     print("append_chapter · markdown 章节追加到 docx · 模块 API(无 CLI 入口)")
     print("=" * 60)
     print("用法(模块 API):")
@@ -403,10 +399,8 @@ def _print_cli_notice() -> None:
     print("    append_markdown(doc, markdown_text, body_font='宋体')")
     print("    doc.save('out.docx')")
     print()
-    print("CLI 未提供:原 tender-writer CLI 依赖 brief_schema(投标特化 review gate /")
-    print("未迁移到 solution-drafter / 见 MIGRATION_MAP §五)。如需 CLI,请新建一个")
-    print("不依赖 brief_schema 的入口,或直接走 solution-drafter 的 demo run.py /")
-    print("SKILL.md 工作流(agent 读 section prompt 自己生成 + 调本模块 append_markdown)。")
+    print("CLI 未提供:请走模块 API,或直接跑 examples/ 的 demo run.py / SKILL.md 工作流")
+    print("(agent 读 section prompt 自己生成 + 调本模块 append_markdown)。")
     print("=" * 60)
 
 

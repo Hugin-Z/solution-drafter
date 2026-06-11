@@ -5,13 +5,13 @@ docx_builder.py · 方案文档 docx 构建工具模块
 用途:
     本模块提供构建中文政企方案文档 docx 所需的所有底层工具函数,
     包括字体字号设置、页边距设置、自动目录、SEQ 域图表编号、繁简
-    转换兜底等。被其他脚本(parse_tender / build_scoring_matrix /
+    转换兜底等。被其他脚本(
     阶段 4 的章节追加)以 import 方式复用。
 
 使用方法:
     本模块既可作为模块被 import,也可直接命令行运行以创建一份
     空的方案文档骨架(封面 + 目录 + 页眉页脚 + 默认样式):
-        run_script.bat docx_builder.py --out output/solution_document.docx \\
+        python docx_builder.py --out output/solution_document.docx \\
             --project "智慧城市综合管理平台" --org "示例科技有限公司"
 
 参数(命令行模式):
@@ -480,7 +480,6 @@ def add_cover_page(doc: Document, project_name: str, org_name: str,
     """
     添加封面页:项目名(主标题) + 编制单位 + 日期。
     封面与正文之间插入分页符。
-    (M7-g:去 tender-writer 投标书语义 / solution-drafter 是中性方案文档工具。)
     """
     project_name = to_simplified(project_name)
     org_name = to_simplified(org_name)
@@ -559,7 +558,7 @@ def add_toc_page(doc: Document):
 # 九、创建空骨架
 # ============================================================
 
-def create_tender_doc(out_path: Path,
+def create_full_doc(out_path: Path,
                       project_name: str,
                       org_name: str,
                       doc_date: str = ""):
@@ -569,7 +568,6 @@ def create_tender_doc(out_path: Path,
     - 封面
     - 目录(TOC 域,Word 中按 F9 更新)
     - 等待追加正文章节
-    (函数名 create_tender_doc 为 tender-writer 迁移历史保留 / 产物已去投标语义。)
     """
     doc = Document()
     apply_default_styles(doc)
@@ -619,9 +617,9 @@ def create_section_doc(out_path: Path, body_font: str = "宋体") -> Path:
     body_font:正文中文字体,由 outline.yaml 的 output.font_policy 驱动
     (M7-g C-full / 默认宋体 / 改 font_policy 即换正文字体 / 不动代码)。
 
-    与 create_tender_doc 的区别:
-    - create_tender_doc: 完整单文档骨架(封面+目录+正文容器)
-    - create_section_doc: 仅正文容器,用于作为整标的一个 Part
+    与 create_full_doc 的区别:
+    - create_full_doc: 完整单文档骨架(封面+目录+正文容器)
+    - create_section_doc: 仅正文容器(不含封面/目录),用于逐段追加正文
     """
     doc = Document()
     apply_default_styles(doc, body_font)
@@ -653,7 +651,7 @@ def main():
     parser.add_argument("--date", default="",
                         help="日期,默认今天")
     parser.add_argument("--section-only", action="store_true",
-                        help="仅创建正文容器(不含封面/目录),用于整标合并")
+                        help="仅创建正文容器(不含封面/目录),用于逐段追加正文")
     args = parser.parse_args()
 
     if args.section_only:
@@ -663,10 +661,10 @@ def main():
         print("=" * 60)
         print("下一步:进入阶段 4(分章节撰写)")
         print("  - 每写一章,调模块 API append_chapter.append_markdown(doc, md, body_font) 追加到此容器")
-        print("  - 本容器不含封面/目录,由后续整标合并器统一处理")
+        print("  - 本容器不含封面/目录,正文逐段追加进来")
         print("=" * 60)
     else:
-        out_path = create_tender_doc(
+        out_path = create_full_doc(
             Path(args.out),
             project_name=args.project,
             org_name=args.org,

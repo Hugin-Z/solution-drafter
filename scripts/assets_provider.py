@@ -1,20 +1,20 @@
 # -*- coding: utf-8 -*-
 """
-assets_provider.py · B 模式 assets 库对接抽象层
+assets_provider.py · S2 资料获取 AssetsProvider 抽象接口（契约定义）
 
-定义 AssetsProvider 抽象接口 + 两个 Provider 实现:
-- PlaceholderAssetsProvider(V61):lookup 全部返回占位,resolve 产占位 docx
-- CuratedLocalAssetsProvider(V3-1):扫 assets/<类别>/<company_id>/ 找真实文件,
-  多命中走 stdin 交互(对齐 CLAUDE.md 红线 6),PDF 走 pdf2docx 在线转换
+本模块只定义 S2 阶段"资料获取"的抽象接口 + 一个占位实现,**不提供真实素材库 provider**:
+- AssetsProvider: 抽象接口(lookup / resolve)。
+- PlaceholderAssetsProvider: 占位实现(lookup 返回占位 / resolve 产占位 docx),仅供基建验证。
 
-B 模式 b_mode_fill 通过本接口查找和解析 assets 条目,不直接操作 assets 目录。
+S2 的产物是 assets.json(手段无关结构 / 见 prompts/stages/s2-acquire.md);真实素材由调用方用其手段
+(RAG / 检索 / 网络 / 人工)获取后写入 assets.json。本框架不内置检索引擎、不绑定特定素材库。
 
-【未来实现(当前不写,仅接口注释说明)】
+注(CuratedLocalAssetsProvider): 下方保留一个 CuratedLocalAssetsProvider 类作为"本地素材库 provider"的
+接口示例,但它依赖未提供的映射模块、已在 get_provider() 中下架(get_provider('curated_local') 直接报错)。
+不要把它当成可用的真实素材库——真实 provider 由你按 AssetsProvider 接口自行实现。
 
-MCPExternalAssetsProvider:
-    通过 MCP 协议对接外部材料库(如企业统一材料平台)。
-    适用于大型组织,资质/业绩材料在统一平台集中管理。
-    触发条件:有真实外部材料库需求时。
+【未来实现(仅接口注释说明)】
+MCPExternalAssetsProvider: 通过 MCP 协议对接外部材料库,适用于素材在统一平台集中管理的场景。
 """
 
 from __future__ import annotations
@@ -35,7 +35,7 @@ class AssetRef:
 
 
 class AssetsProvider(ABC):
-    """B 模式 assets 库对接抽象接口。"""
+    """S2 资料获取 AssetsProvider 抽象接口。"""
 
     @abstractmethod
     def lookup(self, asset_type: str, **kwargs) -> AssetRef:
@@ -51,7 +51,7 @@ class AssetsProvider(ABC):
 class PlaceholderAssetsProvider(AssetsProvider):
     """V61 本轮实现:所有 lookup 返回占位 AssetRef,resolve 产出占位 docx。
 
-    不查任何真实资源。用于 B 模式基建验证和材料管理子系统启动前的占位运行。
+    不查任何真实资源。仅供接口基建验证 / 占位运行。
     """
 
     def lookup(self, asset_type: str, **kwargs) -> AssetRef:
@@ -78,7 +78,7 @@ class PlaceholderAssetsProvider(AssetsProvider):
         doc.add_paragraph("  (由 PlaceholderAssetsProvider 产出,真实材料待填)")
 
         # 临时目录,不进基线
-        tmp_dir = Path(tempfile.gettempdir()) / "tender_writer_placeholder_assets"
+        tmp_dir = Path(tempfile.gettempdir()) / "solution_drafter_placeholder_assets"
         tmp_dir.mkdir(parents=True, exist_ok=True)
         # 用 lookup_key 的哈希做文件名避免冲突
         import hashlib
@@ -89,7 +89,9 @@ class PlaceholderAssetsProvider(AssetsProvider):
 
 
 class CuratedLocalAssetsProvider(AssetsProvider):
-    """V3-1:扫现有 assets/<类别>/<company_id>/ 结构找真实 asset 文件。
+    """本地素材库 provider 的接口示例（已在 get_provider 中下架 / 依赖未提供的映射模块 / 勿当真实素材库用）。
+
+    扫 assets/<类别>/<company_id>/ 结构找真实 asset 文件。
 
     候选优先级:_raw/<file>.docx → _raw/<file>.pdf(走 pdf2docx 转换) →
     <resource>.md(curated 兜底,转 docx 段落)。
@@ -124,7 +126,7 @@ class CuratedLocalAssetsProvider(AssetsProvider):
         year_filter: str | None = None,
     ) -> list[AssetRef]:
         # 延迟 import,避免顶层依赖
-        # _asset_type_mapping 是投标特化模块 / 未迁移到 solution-drafter (见 MIGRATION_MAP §五)
+        # _asset_type_mapping 是本类依赖的映射模块 / 本框架未提供 (CuratedLocal 已下架)
         # 仅 CuratedLocalAssetsProvider 的 lookup 路径依赖 / PlaceholderAssetsProvider 不受影响
         import sys as _sys
         _sys.path.insert(0, str(Path(__file__).resolve().parent))
@@ -136,7 +138,7 @@ class CuratedLocalAssetsProvider(AssetsProvider):
         except ImportError as exc:
             raise RuntimeError(
                 "CuratedLocalAssetsProvider 依赖 _asset_type_mapping 未迁移 "
-                "(投标特化 / 见 MIGRATION_MAP §五)。当前请用 PlaceholderAssetsProvider "
+                "(本框架未提供该映射模块 / CuratedLocal 已下架)。请用 PlaceholderAssetsProvider 或自行实现 AssetsProvider "
                 "(get_provider('placeholder'))。"
             ) from exc
 
@@ -314,7 +316,7 @@ class CuratedLocalAssetsProvider(AssetsProvider):
             )
             return PlaceholderAssetsProvider().resolve(asset_ref)
 
-        out = Path(tempfile.gettempdir()) / "tender_writer_pdf2docx" / f"{pdf_path.stem}.docx"
+        out = Path(tempfile.gettempdir()) / "solution_drafter_pdf2docx" / f"{pdf_path.stem}.docx"
         out.parent.mkdir(parents=True, exist_ok=True)
         try:
             cv = Converter(str(pdf_path))
@@ -341,7 +343,7 @@ class CuratedLocalAssetsProvider(AssetsProvider):
             line = line.strip()
             if line:
                 doc.add_paragraph(line)
-        out = Path(tempfile.gettempdir()) / "tender_writer_md_assets" / f"{md_path.stem}.docx"
+        out = Path(tempfile.gettempdir()) / "solution_drafter_md_assets" / f"{md_path.stem}.docx"
         out.parent.mkdir(parents=True, exist_ok=True)
         doc.save(str(out))
         return out
@@ -355,12 +357,11 @@ def get_provider(name: str, **kwargs) -> AssetsProvider:
     if name == "placeholder":
         return PlaceholderAssetsProvider()
     if name == "curated_local":
-        # M7-g 下架:CuratedLocalAssetsProvider 依赖未迁移的 _asset_type_mapping +
-        # pdf2docx(lazy 死路径 / 见 MIGRATION_MAP §5.2)/ 不从 get_provider 公开。
-        # 类定义保留(历史 / 未来若迁移依赖可重新启用)。
+        # 下架:CuratedLocalAssetsProvider 依赖本框架未提供的映射模块 + pdf2docx(第三方未引入)/
+        # 不从 get_provider 公开。类定义保留作接口示例。
         raise ValueError(
-            f"assets_provider='curated_local' 已下架(依赖 _asset_type_mapping / "
-            f"pdf2docx 未迁移 / 见 MIGRATION_MAP §5.2)。当前支持: 'placeholder'。"
+            f"assets_provider='curated_local' 已下架(依赖未提供的映射模块 / pdf2docx 第三方未引入)。"
+            f"当前支持: 'placeholder' / 或按 AssetsProvider 接口自行实现。"
         )
     raise ValueError(
         f"未知的 assets_provider='{name}'。当前支持: 'placeholder';"

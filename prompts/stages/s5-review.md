@@ -2,11 +2,11 @@
 
 ## 任务
 
-对 S4 产出的 `draft.md`（合并 6 个 section markdown）做一次性整体评审 + 修订，产出 `final.md`。
+对 S4 产出的 `draft.md`（合并各 section markdown）做一次性整体评审 + 修订，产出 `final.md`。
 
 ## 输入
 
-- `draft.md`（6 section markdown 合并 / 含一级标题 + 6 个二级标题段）
+- `draft.md`（各 section markdown 合并 / 含一级标题 + N 个二级标题段，N = 本 doc_type outline 的 section 数）
 - `intake_data`（用户字面）
 - 用户多轮对话反馈（M2 不接 / M5 接入）
 
@@ -18,7 +18,7 @@
    - 是否扩展了用户字面（"为了完整性再加一段"类）
 
 2. **一致性 verify**
-   - 客户名 / 项目名 / 时间 / 金额在 6 个 section 中是否一致
+   - 客户名 / 项目名 / 时间 / 金额在各 section 中是否一致
    - 现有系统 list 在多次出现时是否字面一致（不变形）
 
 3. **格式 verify**
@@ -38,11 +38,11 @@
 
 ## 输出契约
 
-输出 `final.md` 完整字面（含一级标题 + 6 二级标题段 / markdown 格式）。
+输出 `final.md` 完整字面（含一级标题 + 各二级标题段 / markdown 格式）。
 
 ## 自检（输出前）
 
 - [ ] 二级标题数量 = 本 doc_type outline 的 section 数
-- [ ] 客户名 / 项目名 6 section 内一致
+- [ ] 客户名 / 项目名 各 section 内一致
 - [ ] 无内部术语 / 无总结性 footer
 - [ ] 无 S4 阶段未授权扩展的事实
