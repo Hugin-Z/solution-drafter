@@ -9,7 +9,7 @@ prompts/sections/<doc_type>/*.md + domain plugin / 自己生成 section markdown
 本 stub 不删 (tests 仍依赖 / fixture 价值) / 仅声明 SKILL.md S4 不走 stub 路径.
 详见仓库根 SKILL.md "stub 与真实工作流的关系" 段.
 
-接口契约 (Hugin ack):
+接口契约:
 - 函数: generate_section_content(...)
 - 入参: section_id / section_title / section_prompt / intake_data / intake_fields
         / system_prompt / stage_prompt / domain_plugin
